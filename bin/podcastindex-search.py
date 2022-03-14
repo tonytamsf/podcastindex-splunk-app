@@ -8,13 +8,16 @@
 # Splunk index
 #   podcastindex-podcasts
 
+# Splunk paths https://dev.splunk.com/enterprise/docs/developapps/createapps/appanatomy/#Considerations-for-Python-code-files
 import os,sys,time
-
 APP_NAME='podcastindex-splunk-app'
 splunkhome = os.environ['SPLUNK_HOME']
 apphome = os.path.join(splunkhome, 'etc', 'apps', APP_NAME)
 sys.path.append(os.path.join(apphome, 'lib'))
-sys.path.append(os.path.join(splunkhome, 'etc', 'apps', 'searchcommands_app', 'lib'))
+
+# This should be loaded after path is updated
+#from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option
+
 import podcastindex
 
 ## TODO these secret should be configurable from the user
@@ -30,8 +33,10 @@ def ignore():
     result = index.search("This American Life")
     for r in result["feeds"]:
         r.update({'_time' : int(time.time())})
-        print(r)
-
+        line = ""
+        for key,value in r.items():
+          line += key + " = " + str(value) +  " "
+        print(line)
 ignore()
 
 
