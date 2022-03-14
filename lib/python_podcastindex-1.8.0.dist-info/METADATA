@@ -333,8 +333,6 @@ This is mostly for myself since I have to lookup these commands every time ;)
 1. Update version number in setup.py
 2. Run the following commands
 ```
-rm -rf build
-rm -rf dist
 python3 -m pip install --upgrade build
 python3 -m build
 ```
