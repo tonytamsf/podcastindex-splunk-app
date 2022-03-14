@@ -16,7 +16,7 @@ apphome = os.path.join(splunkhome, 'etc', 'apps', APP_NAME)
 sys.path.append(os.path.join(apphome, 'lib'))
 
 # This should be loaded after path is updated
-#from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option
+from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option
 
 import podcastindex
 
@@ -26,19 +26,30 @@ config = {
     "api_secret": "gtsB#x2V77EbyDsm5ysbsJFbsjD6EZDN87hcF3XF"
 }
 
+@Configuration()
+class PodcastIndexSearch(GeneratingCommand):
+    keyword = Option(require=True)
 
-def ignore():
-    index = podcastindex.init(config)
+    def generate(self):
+        self.logger.info('Search on podcastindex.org {}'.format(self.keyword))
+        index = podcastindex.init(config)
 
-    result = index.search("This American Life")
-    for r in result["feeds"]:
-        r.update({'_time' : int(time.time())})
-        line = ""
-        for key,value in r.items():
-          line += key + " = " + str(value) +  " "
-        print(line)
-ignore()
+        result = index.search(self.keyword)
+        for r in result["feeds"]:
+            r.update({'_time' : r["lastUpdateTime"]})
+            yield r 
+    '''
+    Convert headers string into dict
+    @headers string: Headers as json string
+    @return dict
+    '''
+    def parseHeaders(self, headers):
+        # Replace single quotes with double quotes for valid json
+        return json.loads(
+          headers.replace('\'', '"')
+        )
 
 
+dispatch(PodcastIndexSearch, sys.argv, sys.stdin, sys.stdout, __name__)
 #with open("./sample.txt") as f:
 #  print(f.read())
