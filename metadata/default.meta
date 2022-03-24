@@ -37,3 +37,10 @@ export = system
 
 [searchbnf]
 export = system
+
+### Secrets
+[passwords/podcastindex%3Aapi_key]
+export = system
+
+[passwords/podcastindex%3Aapi_secret]
+export = system
